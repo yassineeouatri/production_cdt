@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<!-- CA SUP-->
+
+		<record id="view_suivi_board_sup_ca_cdt_tree" model="ir.ui.view">
+            <field name="name">suivi.board.sup.ca.cdt.tree</field>
+            <field name="model">suivi.board.sup.ca.cdt</field>
+            <field name="arch" type="xml">
+                <tree string="Primes" editable="top" colors="orange:ca_h_m &lt; 6 and ca_h_m &gt;=3.5 ;blue:ca_h_m &gt;= 6;red:ca_h_m &lt; 3.5" >
+                	<field name="type"  invisible="1"/>
+                	<field name="type2"  invisible="1"/>
+                	
+                    <field name="employee_id"/>
+                    <field name="superviseur_id"  invisible="1"/>
+                    <field name="ca_h_j"/>
+                    <field name="ca_h_s"/>
+                    <field name="ca_h_m"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_suivi_board_sup_ca_cdt" model="ir.actions.act_window">
+            <field name="name">CA Horaire</field>
+            <field name="res_model">suivi.board.sup.ca.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="limit">200</field>
+            <field name="context">{}</field>
+            <field name="view_id" eval="False"/>
+        </record>
+		<!-- CA TA-->
+
+		<record id="view_suivi_board_prime_ca_cdt_tree" model="ir.ui.view">
+            <field name="name">suivi.board.prime.ca.cdt.tree</field>
+            <field name="model">suivi.board.prime.ca.cdt</field>
+            <field name="arch" type="xml">
+                <tree string="Primes" editable="top">
+                	<field name="periode"  />
+                    <field name="employee_id"  invisible="1"/>
+                    <field name="cu" invisible="1"/>
+                    <field name="h_prod" invisible="1"/>
+                    <field name="h_panne" invisible="1"/>
+                    <field name="h_relance" invisible="1"/>
+                    <field name="ca" invisible="1"/>
+                    <field name="ca_h_1"/>
+                    <field name="ca_h_2"/>
+                    <field name="ca_h_3"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_suivi_board_prime_ca_cdt" model="ir.actions.act_window">
+            <field name="name">CA Horaire</field>
+            <field name="res_model">suivi.board.prime.ca.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>
+            <field name="view_id" eval="False"/>
+        </record>
+	<!-- Stats -->
+
+		<record id="view_suivi_board_stats_cdt_tree" model="ir.ui.view">
+            <field name="name">suivi.board.stats.cdt.tree</field>
+            <field name="model">suivi.board.stats.cdt</field>
+            <field name="arch" type="xml">
+                <tree string="Primes" editable="top">
+                	<field name="employee_id"  invisible="1"/>
+                    <field name="information"  />
+                    <field name="data"  />
+                </tree>
+            </field>
+        </record>
+        <record id="action_suivi_board_stats_cdt" model="ir.actions.act_window">
+            <field name="name">RESUME DU MOIS EN COURS</field>
+            <field name="res_model">suivi.board.stats.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>
+            <field name="view_id" eval="False"/>
+        </record>
+
+        <!-- Taux de retour -->
+
+		<record id="view_suivi_board_retour_cdt_tree" model="ir.ui.view">
+            <field name="name">suivi.board.retour.cdt.tree</field>
+            <field name="model">suivi.board.retour.cdt</field>
+            <field name="arch" type="xml">
+                <tree string="Taux de retour" colors="orange:taux_retour &lt; 15 and taux_retour &gt;=18 ;blue:taux_retour &gt;= 18;red:taux_retour &lt; 15">
+                	<field name="nbr" invisible="1" />
+                    <field name="year" />
+                    <field name="month"  />
+                    <field name="employee_id"  />
+                    <field name="superviseur_id"  />
+                    <field name="invitation"  />
+                    <field name="retour"  />
+                    <field name="taux_retour"  invisible="1"/>
+                    <field name="taux_retour_text"  />
+                </tree>
+            </field>
+        </record>
+        <record id="action_suivi_board_retour_cdt" model="ir.actions.act_window">
+            <field name="name">Tx de retour</field>
+            <field name="res_model">suivi.board.retour.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+             <field name="limit">500</field>
+            <field name="context">{}</field>
+            <field name="view_id" eval="False"/>
+        </record>
+    <!-- TBD DES TA -->
+    <record id="board_suivi_production_ta_cdt_form" model="ir.ui.view">
+        <field name="name">board.suivi.production.ta.form</field>
+        <field name="model">board.board</field>
+        <field name="arch" type="xml">
+            <form string="Planning Dashboard"  version="7.0">
+               <board >
+                    <column>
+                    	<action name="%(action_suivi_board_prime_ca_cdt)d" string="CA Horaire"/>
+                        <action name="%(action_suivi_board_retour_cdt)d" string="Tx de Retour"/>
+                    </column>
+                     <column>
+                     	<action name="%(action_suivi_board_stats_cdt)d" string="RESUME DU MOIS EN COURS"/>
+                    </column>
+                </board>
+            </form>
+        </field>
+    </record>
+
+    <record id="open_board_suivi_production_ta_cdt" model="ir.actions.act_window">
+        <field name="name">TBD TA CDT</field>
+        <field name="res_model">board.board</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="usage">menu</field>
+        <field name="view_id" ref="board_suivi_production_ta_cdt_form"/>
+            <field name="help" type="html">
+              <div class="oe_empty_custom_dashboard">
+                  <p>
+                    <b>Le tableau de bord est vide.</b>
+                  </p>
+              </div>
+            </field>
+    </record>
+   <!-- TBD DES SUP -->
+    <record id="board_suivi_production_sup_cdt_form" model="ir.ui.view">
+        <field name="name">board.suivi.production.sup.form</field>
+        <field name="model">board.board</field>
+        <field name="arch" type="xml">
+            <form string="Planning Dashboard"  version="7.0">
+               <board >
+                    <column>
+                    	<action name="%(action_suivi_board_sup_ca_cdt)d" string="CA Horaire"/>
+                    </column>
+                    <column>
+                    	<action name="%(action_suivi_board_retour_cdt)d" string="Tx de Retour"/>
+                    </column>
+                </board>
+            </form>
+        </field>
+    </record>
+
+    <record id="open_board_suivi_production_sup_cdt" model="ir.actions.act_window">
+        <field name="name">TBD SUP CDT</field>
+        <field name="res_model">board.board</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="usage">menu</field>
+        <field name="view_id" ref="board_suivi_production_sup_cdt_form"/>
+            <field name="help" type="html">
+              <div class="oe_empty_custom_dashboard">
+                  <p>
+                    <b>Le tableau de bord est vide.</b>
+                  </p>
+              </div>
+            </field>
+    </record>
+</data>
+</openerp>

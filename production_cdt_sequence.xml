@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<openerp>
+    <data noupdate='1'>
+		
+		<!--
+			Sequence Type
+		-->
+		
+		<record id="ir_seq_type_invoice_cdt" model="ir.sequence.type">
+			<field name="name">Invoice CDT</field>
+			<field name="code">invoice.cdt.req</field>
+		</record>
+		
+		<!--
+			Sequence
+		-->
+		
+		<record id="ir_seq_invoice_cdt" model="ir.sequence">
+			<field name="name">Invoice CDT</field>
+			<field name="code">invoice.cdt.req</field>
+			<field name="prefix"></field>
+			<field name="padding">3</field>
+			<field name="number_increment">1</field>
+			<field name="number_next_actual">1</field>
+			<field name="implementation">standard</field>
+		</record>
+		
+	</data>
+</openerp>

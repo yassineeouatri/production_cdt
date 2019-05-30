@@ -1,0 +1,1625 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data> 
+    	<act_window id="change_password_wiza rd_action_cdt"
+            name="Changer le mot de passe"
+            src_model="res.users"
+            res_model="change.password.wizard"
+            view_type="form" view_mode="form"
+            key2="client_action_multi" target="new"
+            groups="group_cdt_manager"/>
+    	<record id="action_res_users_cdt" model="ir.actions.act_window">
+            <field name="name">Users</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.users</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="base.view_users_tree"/>
+            <field name="search_view_id" ref="base.view_users_search"/>
+            <field name="domain">[('operation_id.name','=','CDT')]</field>
+            <field name="help">Create and manage users that will connect to the system. Users can be deactivated should there be a period of time during which they will/should not connect to the system. You can assign them groups in order to give them specific access to the applications they need to use in the system.</field>
+        </record>
+        <record id="action_res_users_view1_cdt" model="ir.actions.act_window.view">
+            <field eval="10" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="base.view_users_tree"/>
+            <field name="act_window_id" ref="action_res_users_cdt"/>
+        </record>
+        <record id="action_res_users_view2_cdt" model="ir.actions.act_window.view">
+            <field eval="20" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="base.view_users_form"/>
+            <field name="act_window_id" ref="action_res_users_cdt"/>
+        </record>
+<!--
+    ======================
+    Effectif CDT
+    =======
+          -->
+		<record id="view_employee_cdt_filter" model="ir.ui.view">
+            <field name="name">Employees</field>
+            <field name="model">hr.employee</field>
+            <field name="arch" type="xml">
+                <search string="Employees">
+                    <filter icon="terp-camera_test" string="En production" name="filter_inprogress" domain="[('state','=','open')]" help="Les employés qui sont en cours"/>
+                    <filter icon="gtk-add" string="En Arrêt Maladie" name="filter_arret_maladie"  domain="[('state','=','arret_maladie')]" help="Les employés qui sont en arrêt maladie"/>
+                    <filter icon="gtk-conge" string="En Congé" name="filter_enconge"  domain="[('state','=','en_conge')]" help="Les employés qui sont en conge"/>
+                    <filter icon="gtk-abandon" string="Abandon"  domain="[('state','=','abandon')]" help="Les employés abandonnés"/>
+                    <filter icon="gtk-arret" string="Arrêt" domain="[('state','=','arret')]" help="les employés arrétés" />
+                    <separator orientation="vertical" />
+                    <group expand="0" string="Grouper par...">
+                        <filter string="Opération" icon="terp-personal+" domain="[]" context="{'group_by':'operation_id'}"/>
+                        <filter string="Catégorie" icon="terp-personal+" domain="[]" context="{'group_by':'category_id'}"/>
+                        <filter string="Equipe" icon="terp-personal+" domain="[]" context="{'group_by':'superviseur_id'}"/>
+                    </group>
+                </search>
+             </field>
+         </record>
+        <record id="view_employee_cdt_tree" model="ir.ui.view">
+            <field name="name">hr.employee.cdt.tree</field>
+            <field name="model">hr.employee</field>
+            <field name="arch" type="xml">
+                <tree string="Employees" editable="top">
+                    <field name="date_entree" string="DATE ENTREE"/>            
+                    <field name="name" />
+                    <field name="prenom" />
+                    <field name="category_id" domain="[('name','in',('SUP','TA','Chef de plateau'))]"  string="Catégorie" widget="selection" required="1" />
+                    <field name="operation_id"  domain="[('name','=','CDT')]" string="Opération" widget="selection" required="1"/>
+                    <field name="superviseur_id" domain="[('operation_id.name','=','CDT'),('category_id.name','in',('SUP','Chef de plateau'))]" widget="selection" string="Equipe"/>
+                    <field name="user_id"  domain="[('operation_id.name','=','CDT')]"/>
+                    <field name="state" readonly="1"/>
+                    <button name="case_abandon" string="Abandon" states="open" type="object" icon="gtk-abandon"/>
+                    <button name="case_arret" string="Arret" states="open" type="object" icon="gtk-arret"/>
+                    <button name="case_reset" string="Remettre en production" states="en_conge,arret_maladie,arret,abandon"  type="object" icon="gtk-convert"/>
+                    
+                </tree>
+            </field>
+        </record>
+		<record id="open_view_employee_cdt" model="ir.actions.act_window">
+            <field name="name">Effectif CDT</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{"search_default_filter_inprogress":1}</field>
+            <field name="domain">[('operation_id.name','=','CDT')]</field>
+            <field name="search_view_id" ref="view_employee_cdt_filter"/>
+        </record>
+       
+        <record model="ir.actions.act_window.view" id="open_open_view_employee_cdt_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_employee_cdt_tree"/>
+            <field name="act_window_id" ref="open_view_employee_cdt"/>
+        </record>
+         <record id="view_employee_parrainage_cdt_tree" model="ir.ui.view">
+            <field name="name">hr.employee.prime.tree</field>
+            <field name="model">hr.employee.prime</field>
+            <field name="arch" type="xml">
+                <tree string="Primes" editable="top">
+                    <field name="year"  />
+                    <field name="month" />
+                    <field name="employee_id" />
+                    <field name="operation_id" />
+                    <field name="category_id" />
+                    <field name="parrainage"/>
+                </tree>
+            </field>
+        </record>
+        <record id="open_view_employee_parrainage_cdt_tree" model="ir.actions.act_window">
+            <field name="name">Parrainage</field>
+            <field name="res_model">hr.employee.prime</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{"search_default_is_current_month":1}</field>
+            <field name="view_id" eval="False"/>
+        </record>
+          <record model="ir.actions.act_window.view" id="open_view_employee_parrainage_cdt_tree_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_employee_parrainage_cdt_tree"/>
+            <field name="act_window_id" ref="open_view_employee_parrainage_cdt_tree"/>
+        </record>
+ <!--
+    ======================
+    Planning 
+    =======
+          -->
+        <record model="ir.ui.view" id="view_hr_operation_planning_cdt_filter"  >
+            <field name="name">hr.operation.planning.cdt.filter</field>
+            <field name="model">hr.operation.planning.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                        <filter string="Jour" name='day' icon="terp-personal+" domain="[]" context="{'group_by':'day'}"/>
+                     </group>
+				</search>
+            </field>
+        </record>
+        <!-- Jour -->
+        <record id="view_hr_operation_planning_cdt_jour_tree" model="ir.ui.view">
+            <field name="name">hr.operation.planning.cdt.tree</field>
+            <field name="model">hr.operation.planning.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Planning" editable="top"> 
+        			  <field name="date"/>
+        			  <field name="day" invisible="1"/>
+        			  <field name="operation_id" widget="selection"/>
+        			  <field name="am_arr" widget="float_time"/>
+        			  <field name="am_dep" widget="float_time"/>
+        			  <field name="pm_arr" widget="float_time"/>
+					  <field name="pm_dep" widget="float_time"/>
+        			  <field name="h_prevu"/>       			  	
+               </tree>
+            </field>
+        </record>
+        <record id="open_hr_operation_planning_cdt_jour" model="ir.actions.act_window">
+            <field name="name">Planning</field>
+            <field name="res_model">hr.operation.planning.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="domain">[]</field>
+            <field name="context">{"search_default_today":1}</field>
+            <field name="help">.</field>
+        </record>
+         <record model="ir.actions.act_window.view" id="open_hr_operation_planning_cdt_jour_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_hr_operation_planning_cdt_jour_tree"/>
+            <field name="act_window_id" ref="open_hr_operation_planning_cdt_jour"/>
+        </record>
+ 
+<!--
+    ======================
+    Dimensionnement
+    =======
+          -->
+        <record model="ir.ui.view" id="view_hr_employee_dimensionnement_cdt_filter"  >
+            <field name="name">hr.employee.dimensionnement.cdt.filter</field>
+            <field name="model">hr.employee.dimensionnement.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                        <filter string="Jour" name='day' icon="terp-personal+" domain="[]" context="{'group_by':'day'}"/>
+                     </group>
+				</search>
+            </field>
+        </record>
+        <record id="view_hr_employee_dimensionnement_cdt_form" model="ir.ui.view">
+            <field name="name">hr.employee.dimensionnement.cdt.from</field>
+            <field name="model">hr.employee.dimensionnement.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <form string="TA" version="7.0" >
+                      <sheet>
+                         <group col="4" colspan="2">
+                              <field name="date"/>
+                              <field name="superviseur_id"/>
+                         </group>
+                         <notebook>
+                             <page string="Présence">
+								<group   col="4" colspan="4">
+									<field name='presence_ids' nolabel="1" colspan="4"   >
+										<tree editable="top" colors="blue:h_diff==0;red:h_diff!=0;">
+						        			  <field name="employee_id" widget="selection" />
+						        			  <field name="h_pres" sum="H.Présence"/>
+						        			  <field name="h_fact" sum="H.Facturables"/>
+						        			  <field name="h_prod" sum="H.Production"/>
+						        			  <field name="h_diff" sum="H.Différence"/>
+						        			  <field name="state" on_change="onchange_state(state)"/>								
+										</tree>
+									</field>
+								</group>				
+							</page> 
+							<page string="Production">
+								<group   col="4" colspan="4">
+									<field name='production_ids' nolabel="1" colspan="4">
+										<tree editable="top">
+        			  						  <field name="tv"/>
+						        			  <field name="base_id" widget="selection"/>
+						        			  <field name="cu" sum="Invitation"/>
+						        			  <field name="h_prod_jour" sum="H.Prod"/>
+						        			  <field name="h_brief" sum="H.Brief"/>
+						        			  <field name="h_panne" sum="H.Panne"/>
+						        			  <field name="h_relance" sum="H.Relance"/>	
+						        		</tree>
+									</field>
+								</group>				
+							</page>                     
+                         </notebook> 
+					</sheet>                
+               </form>
+            </field>
+        </record>
+        <record id="view_hr_employee_dimensionnement_cdt_tree" model="ir.ui.view">
+            <field name="name">hr.employee.dimensionnement.cdt.tree</field>
+            <field name="model">hr.employee.dimensionnement.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA"  colors="blue:h_diff==0;red:h_diff!=0;"> 
+        			  <field name="jour"/>
+        			  <field name="date"/>
+        			  <field name="superviseur_id"/>
+        			  <field name="day" invisible="1"/>
+        			  <field name="cu"/>
+        			  <field name="h_pres"/>
+        			  <field name="h_fact"/>
+        			  <field name="h_prod"/>
+        			  <field name="h_diff"/>
+               </tree>
+            </field>
+        </record>
+        <record id="open_hr_employee_dimensionnement_cdt" model="ir.actions.act_window">
+            <field name="name">Dimensionnement CDT</field>
+            <field name="res_model">hr.employee.dimensionnement.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{"search_default_today":1}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+<!--
+    ======================
+    Feuile d'heures 
+    =======
+          -->
+        <record model="ir.ui.view" id="view_hr_employee_presence_cdt_filter"  >
+            <field name="name">hr.employee.presence.cdt.filter</field>
+            <field name="model">hr.employee.presence.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                	<field name="employee_id" widget="selection"/>
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                        <filter string="Date" name='day' icon="terp-personal+" domain="[]" context="{'group_by':'day'}"/>
+                        <filter string="Opération" name='operation' icon="terp-personal+" domain="[]" context="{'group_by':'operation_id'}"/>
+                        <filter string="Catégorie" name='category' icon="terp-personal+" domain="[]" context="{'group_by':'category_id'}"/>
+                        <filter string="Equipe" name='equipe' icon="terp-personal+" domain="[]" context="{'group_by':'superviseur_id'}"/>
+                        <filter string="TA" name='ta' icon="terp-personal+" domain="[]" context="{'group_by':'employee_id'}"/>
+                    </group>
+				</search>
+            </field>
+        </record>
+        <!-- Jour -->
+        <record id="view_hr_employee_presence_cdt_jour_tree" model="ir.ui.view">
+            <field name="name">hr.employee.presence.cdt.tree</field>
+            <field name="model">hr.employee.presence.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA" editable="top" colors="blue:state=='absent';green:state=='en_conge';red:state=='abandon';red:state=='arret'"> 
+        			  <field name="jour"/>
+        			  <field name="date"/>
+        			  <field name="day" invisible="1"/>
+        			  <field name="employee_id" widget="selection"/>
+        			  <field name="superviseur_id" widget="selection"/>
+        			  <field name="operation_id" widget="selection"/>
+        			  <field name="category_id" widget="selection"/>
+        			  <field name="am_arr" widget="float_time"/>
+        			  <field name="am_dep" widget="float_time"/>
+        			  <field name="pm_arr" widget="float_time"/>
+					  <field name="pm_dep" widget="float_time"/>
+        			  <field name="h_prevu" invisible="1"/>
+        			  <field name="h_pres" sum="H.Prés"/>
+        			  <field name="h_brief" sum="H.Brief"/>
+					  <field name="h_panne" sum="H.Panne"/>
+        			  <field name="h_formation" sum="H.Formation"/>
+        			  <field name="h_relance" sum="H.Relance Non Facturée"/>
+        			  <field name="h_relance_facture" sum="H.Relance Facturée"/>
+        			  <field name="h_fact" sum="H.Fact"/>
+        			  <field name="state" on_change="onchange_state(state)"/>
+        			  	
+               </tree>
+            </field>
+        </record>
+        <record id="open_hr_employee_presence_cdt_jour" model="ir.actions.act_window">
+            <field name="name">Feuille de présence</field>
+            <field name="res_model">hr.employee.presence.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{"search_default_today":1}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+         <record model="ir.actions.act_window.view" id="open_hr_employee_presence_cdt_jour_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_hr_employee_presence_cdt_jour_tree"/>
+            <field name="act_window_id" ref="open_hr_employee_presence_cdt_jour"/>
+        </record>
+    <!--
+    ======================
+    Bases Travaillés 
+    =======
+          -->
+    	<record model="ir.ui.view" id="view_production_base_work_cdt_filter"  >
+            <field name="name">production.base.work.cdt</field>
+            <field name="model">production.base.work.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                        <filter string="Jour" name='day' icon="terp-personal+" domain="[]" context="{'group_by':'day'}"/>
+                     </group>
+				</search>
+            </field>
+        </record>
+        <!-- Jour -->
+        <record id="view_production_base_work_cdt_tree" model="ir.ui.view">
+            <field name="name">production.base.work.cdt.tree</field>
+            <field name="model">production.base.work.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA" editable="top"> 
+        			  <field name="date"/>
+        			  <field name="base"/>
+               </tree>
+            </field>
+        </record>
+        <record id="action_production_base_work_cdt" model="ir.actions.act_window">
+            <field name="name">Bases Travaillées</field>
+            <field name="res_model">production.base.work.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{"search_default_today":1}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+         <record model="ir.actions.act_window.view" id="action_production_base_work_cdt_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_production_base_work_cdt_tree"/>
+            <field name="act_window_id" ref="action_production_base_work_cdt"/>
+        </record>
+   <!--
+    ======================
+    Production par TA 
+    =======
+          -->
+        <record model="ir.ui.view" id="view_suivi_production_ta_cdt_filter"  >
+            <field name="name">suivi.production.ta.cdt.filter</field>
+            <field name="model">suivi.production.ta.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                    <field name="employee_id"/>
+                    <field name="superviseur_id"/>
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                        <filter string="Jour" name='day' icon="terp-personal+" domain="[]" context="{'group_by':'day'}"/>
+                        <filter string="Base" name='base' icon="terp-personal+" domain="[]" context="{'group_by':'base_id'}"/>
+                    	<filter string="TA" name='ta' icon="terp-personal+" domain="[]" context="{'group_by':'employee_id'}"/>
+                    	<filter string="Equipe" name='sup' icon="terp-personal+" domain="[]" context="{'group_by':'superviseur_id'}"/>
+                    </group>
+				</search>
+            </field>
+        </record>
+        <!-- Jour -->
+        <record id="view_suivi_production_ta_cdt_jour_tree" model="ir.ui.view">
+            <field name="name">suivi.production.ta.cdt.tree</field>
+            <field name="model">suivi.production.ta.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA" editable="top" colors="blue:statut=='ok';red:statut=='ko';grey:statut==''"> 
+        			  <field name="jour"/>
+        			  <field name="date"/>
+        			  <field name="day" invisible="1"/>
+        			  <field name="tv"/>
+        			  <field name="employee_id" widget="selection"/>
+        			  <field name="superviseur_id" widget="selection"/>
+        			  <field name="base_id" widget="selection"/>
+        			  <field name="cu" sum="Invitation"/>
+        			  <field name="h_prod_jour" sum="H.Prod"/>
+        			  <field name="h_prod_nuit" sum="H.Prod.Nuit" invisible="1"/>
+        			  <field name="h_brief" sum="H.Brief"/>
+        			  <field name="h_panne" sum="H.Panne"/>
+        			  <field name="h_relance" sum="H.Relance"/>
+        			  <field name="tx_brief"/>
+        			  <field name="tx_panne"/>
+        			  <field name="total_heure" sum="H.Total"/>
+        			  <field name="cadence1"/>
+        			  <field name="cadence2"/>
+        			  <field name="cadence3"/>
+        			  <field name="h_formation" sum="H.Formation"/>
+        			  <field name="statut" invisible="1"/>
+        			  
+               </tree>
+            </field>
+        </record>
+        <record id="open_suivi_production_ta_cdt_jour" model="ir.actions.act_window">
+            <field name="name">Stats de production</field>
+            <field name="res_model">suivi.production.ta.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="limit">500</field>
+            <field name="context">{"search_default_today":1}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+         <record model="ir.actions.act_window.view" id="open_suivi_production_ta_cdt_jour_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_suivi_production_ta_cdt_jour_tree"/>
+            <field name="act_window_id" ref="open_suivi_production_ta_cdt_jour"/>
+        </record>
+   <!--
+    ======================
+    Production par Base 
+    =======
+          -->
+        <record model="ir.ui.view" id="view_suivi_production_base_cdt_filter"  >
+            <field name="name">suivi.production.base.cdt.filter</field>
+            <field name="model">suivi.production.base.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                        <filter string="Jour" name='day' icon="terp-personal+" domain="[]" context="{'group_by':'day'}"/>
+                        <filter string="Base" name='base' icon="terp-personal+" domain="[]" context="{'group_by':'base_id'}"/>
+                    </group>
+				</search>
+            </field>
+        </record>
+        <record id="view_suivi_production_base_cdt_tree" model="ir.ui.view">
+            <field name="name">suivi.production.base.cdt.tree</field>
+            <field name="model">suivi.production.base.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA"> 
+        			  <field name="jour"/>
+        			  <field name="date"/>
+        			  <field name="day" invisible="1"/>
+        			  <field name="base_id" widget="selection"/>
+        			  <field name="cu" sum="Invitation"/>
+        			  <field name="h_prod_jour" sum="H.Prod"/>
+        			  <field name="h_brief" sum="H.Brief"/>
+        			  <field name="h_panne" sum="H.Panne"/>
+        			  <field name="h_relance" sum="H.Relance"/>
+        			  <field name="tx_brief"/>
+        			  <field name="tx_panne"/>
+        			  <field name="total_heure" sum="H.Total"/>
+        			  <field name="cadence1"/>
+        			  <field name="cadence2"/>
+        			  <field name="cadence3"/>
+        			  <field name="h_formation" sum="H.Formation"/>
+               </tree>
+            </field>
+        </record>
+        <record id="open_suivi_production_base_cdt" model="ir.actions.act_window">
+            <field name="name">Stats CDT par Base</field>
+            <field name="res_model">suivi.production.base.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{"search_default_today":1}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+    <!--
+    ======================
+    Production par Superviseur 
+    =======
+          -->
+        <record model="ir.ui.view" id="view_suivi_production_superviseur_cdt_filter"  >
+            <field name="name">suivi.production.superviseur.cdt.filter</field>
+            <field name="model">suivi.production.superviseur.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                        <filter string="Jour" name='day' icon="terp-personal+" domain="[]" context="{'group_by':'day'}"/>
+                        <filter string="Superviseur" name='sup' icon="terp-personal+" domain="[]" context="{'group_by':'superviseur_id'}"/>
+                    </group>
+				</search>
+            </field>
+        </record>
+        <record id="view_suivi_production_superviseur_cdt_tree" model="ir.ui.view">
+            <field name="name">suivi.production.superviseur.cdt.tree</field>
+            <field name="model">suivi.production.superviseur.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA"> 
+        			  <field name="jour"/>
+        			  <field name="date"/>
+        			  <field name="day" invisible="1"/>
+        			  <field name="superviseur_id" widget="selection"/>
+        			  <field name="cu" sum="Invitation"/>
+        			  <field name="h_prod_jour" sum="H.Prod"/>
+        			  <field name="h_brief" sum="H.Brief"/>
+        			  <field name="h_panne" sum="H.Panne"/>
+        			  <field name="h_relance" sum="H.Relance"/>
+        			  <field name="tx_brief"/>
+        			  <field name="tx_panne"/>
+        			  <field name="total_heure" sum="H.Total"/>
+        			  <field name="cadence1"/>
+        			  <field name="cadence2"/>
+        			  <field name="cadence3"/>
+        			  <field name="h_formation" sum="H.Formation"/>
+               </tree>
+            </field>
+        </record>
+        <record id="open_suivi_production_superviseur_cdt" model="ir.actions.act_window">
+            <field name="name">Stats CDT par superviseur</field>
+            <field name="res_model">suivi.production.superviseur.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="limit">500</field>
+            <field name="context">{"search_default_today":1}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+   <!--
+    ======================
+    Production par employee 
+    =======
+          -->
+        <record model="ir.ui.view" id="view_suivi_production_employee_cdt_filter"  >
+            <field name="name">suivi.production.employee.cdt.filter</field>
+            <field name="model">suivi.production.employee.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                        <filter string="Jour" name='day' icon="terp-personal+" domain="[]" context="{'group_by':'day'}"/>
+                        <filter string="Employee" name='employee' icon="terp-personal+" domain="[]" context="{'group_by':'employee_id'}"/>
+                    </group>
+				</search>
+            </field>
+        </record>
+        <record id="view_suivi_production_employee_cdt_tree" model="ir.ui.view">
+            <field name="name">suivi.production.employee.cdt.tree</field>
+            <field name="model">suivi.production.employee.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA"> 
+        			  <field name="jour"/>
+        			  <field name="date"/>
+        			  <field name="day" invisible="1"/>
+        			  <field name="employee_id" widget="selection"/>
+        			  <field name="cu" sum="Invitation"/>
+        			  <field name="h_prod_jour" sum="H.Prod"/>
+        			  <field name="h_brief" sum="H.Brief"/>
+        			  <field name="h_panne" sum="H.Panne"/>
+        			  <field name="h_relance" sum="H.Relance"/>
+        			  <field name="tx_brief"/>
+        			  <field name="tx_panne"/>
+        			  <field name="total_heure" sum="H.Total"/>
+        			  <field name="cadence1"/>
+        			  <field name="cadence2"/>
+        			  <field name="cadence3"/>
+        			  <field name="h_formation" sum="H.Formation"/>
+               </tree>
+            </field>
+        </record>
+        <record id="open_suivi_production_employee_cdt" model="ir.actions.act_window">
+            <field name="name">Stats CDT par employee</field>
+            <field name="res_model">suivi.production.employee.cdt</field>
+            <field name="view_type">form</field>
+            <field name="limit">500</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{"search_default_today":1}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+
+ <!--
+    ======================
+    Bases
+    =======
+          -->
+        <record id="view_production_base_cdt_tree" model="ir.ui.view">
+            <field name="name">production.base.cdt.tree</field>
+            <field name="model">production.base.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA"> 
+        			  <field name="name"/>
+        			  <field name="is_relance"/>
+               </tree>
+            </field>
+        </record>
+       <record id="view_production_base_cdt_form" model="ir.ui.view">
+            <field name="name">production.base.cdt.from</field>
+            <field name="model">production.base.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <form string="TA" version="7.0" >
+                      <sheet>
+                         <group>
+                            <group>	
+                            	<field name="name"/>
+                            	<field name="is_relance"/>    
+                             </group>  
+                             <group>	
+                            	<field name="type_id" widget="selection"/>
+                            	<field name="type_tarif"/> 
+                            	<field name="tarif"/>    
+                             </group>              
+                         </group> 
+                         <notebook>
+                             <page string="Historique">
+								<group   col="4" colspan="4">
+									<field name='production_ids' nolabel="1" colspan="4">
+										<tree editable="top">
+											  <field name="jour"/>
+											  <field name="date"/>									
+        			  						  <field name="tv"/>
+						        			  <field name="cu" sum="Invitation"/>
+						        			  <field name="h_prod_jour" sum="H.Prod"/>
+						        			  <field name="h_brief" sum="H.Brief"/>
+						        			  <field name="h_panne" sum="H.Panne"/>
+						        			  <field name="h_relance" sum="H.Relance"/>							
+										</tree>
+									</field>
+								</group>				
+							</page>                    
+                         </notebook> 
+					</sheet>                
+               </form>
+            </field>
+        </record>
+         
+        <record id="open_production_base_cdt" model="ir.actions.act_window">
+            <field name="name">Bases CDT</field>
+            <field name="res_model">production.base.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+   <!--
+    ======================
+    Logins
+    =======
+          -->
+        <record id="view_production_login_cdt_tree" model="ir.ui.view">
+            <field name="name">production.login.cdt.tree</field>
+            <field name="model">production.login.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA" editable="top"> 
+        			  <field name="name"/>
+        			  <field name="employee_id"/>
+               </tree>
+            </field>
+        </record>
+        <record id="open_production_login_cdt" model="ir.actions.act_window">
+            <field name="name">Login CDT</field>
+            <field name="res_model">production.login.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+        <!--
+    ======================
+    Retour
+    =======
+          -->
+        <record id="view_production_retour_cdt_tree" model="ir.ui.view">
+            <field name="name">production.retour.cdt.tree</field>
+            <field name="model">production.retour.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA" editable="top">
+        			  <field name="year"/>
+        			  <field name="month"/>
+                    <field name="base"/>
+                    <field name="login"/>
+                    <field name="invitation"/>
+                    <field name="retour"/>
+               </tree>
+            </field>
+        </record>
+        <record id="open_production_retour_cdt" model="ir.actions.act_window">
+            <field name="name">Retour CDT</field>
+            <field name="res_model">production.retour.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+       <!--
+    ======================
+    Type des dossiers
+    =======
+          -->
+        <record id="view_production_base_type_cdt_tree" model="ir.ui.view">
+            <field name="name">production.base.type.cdt.tree</field>
+            <field name="model">production.base.type.cdt</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="TA" editable="top"> 
+        			  <field name="name"/>
+               </tree>
+            </field>
+        </record>
+        <record id="open_production_base_type_cdt" model="ir.actions.act_window">
+            <field name="name">Type de dossier</field>
+            <field name="res_model">production.base.type.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+   <!--
+    ======================
+    Primes Quot
+    =======
+          -->
+   		<record model="ir.ui.view" id="view_production_prime_quot_cdt_filter"  >
+            <field name="name">production.prime.quot.cdt.filter</field>
+            <field name="model">production.prime.quot.cdt</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Feuille d'heure">
+                	<field name="employee_id" widget="selection"/>
+                    <filter icon="terp-go-today" string="Aujourdhui" name="today" domain="[('date','&lt;=', time.strftime('%%Y-%%m-%%d')),('date','&gt;=',time.strftime('%%Y-%%m-%%d'))]"  />
+               		 <group expand="0" string="Grouper Par...">
+                     </group>
+				</search>
+            </field>
+        </record>	
+        <record id="view_production_prime_quot_cdt_tree" model="ir.ui.view">
+            <field name="name">production.prime.quot.cdt.tree</field>
+            <field name="model">production.prime.quot.cdt</field>
+            <field name="type">tree</field>
+            <field eval="3" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Primes Quotidiennes" editable="top" >
+                    <field name="date"/>
+                    <field name="employee_id"/>
+                    <field name="montant"/>
+               </tree>
+            </field>
+        </record>
+        <record id="open_view_production_prime_quot_cdt_tree" model="ir.actions.act_window">
+            <field name="name">Primes Quotidiennes CDT</field>
+            <field name="res_model">production.prime.quot.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+        <!--
+    ======================
+    Parametrage serveur Hermes 
+    =======
+          -->
+        <record id="view_production_server_cdt_tree" model="ir.ui.view">
+            <field name="name">production.server.cdt.tree</field>
+            <field name="model">production.server.cdt</field>
+            <field name="type">tree</field>
+            <field eval="3" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Paramétrage du serveur Hermes" editable="top" >
+                    <field name="name"/>
+                    <field name="server_host"/>
+                    <field name="server_user"/>
+                    <field name="server_password" />
+                    <field name="data_base" />
+                    <button name="test_server_connection" type="object" string="Test de connection" icon="gtk-network"/>
+                      	
+               </tree>
+            </field>
+        </record>
+        <record id="open_view_production_server_cdt_tree" model="ir.actions.act_window">
+            <field name="name">Paramétrage du serveur CDT</field>
+            <field name="res_model">production.server.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+  <!--
+    ======================
+    Update Objects 
+    =======
+          -->
+  		<record model="ir.ui.view" id="view_production_update_cdt_form">
+                <field name="name">production.update.cdt.form</field>
+                <field name="model">production.update.cdt</field>
+                <field name="type">form</field>
+                <field name="arch" type="xml">
+                    <form string="Suivi de production" version="7.0">
+	                  <separator string="Mis à jour des données "/>
+	                    <group>
+	                        <label string="Cliquer sur le bouton Mettre à jour ci-dessous afin de lancer l'opération....." />
+	                    </group>
+	                     <group>
+	                    	<field name="date_update" required="1"/>                    
+	                    </group>
+	                    <footer>
+	                        <button name="update_production" string="Mettre à jour" type="object" class="oe_highlight"/> or
+	                        <button special="cancel" string="Cancel" class="oe_link"/>
+	                    </footer>
+               		</form>
+                </field>
+       </record> 
+         <record id="view_production_update_cdt_tree" model="ir.ui.view">
+            <field name="name">production.update.cdt.tree</field>
+            <field name="model">production.update.cdt</field>
+            <field name="type">tree</field>
+            <field eval="3" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Dernier mis a jour" editable="top">
+                    <field name="date_update" string="Date dernière mise à jour"/>
+                    <field name="heure_update" string="Heure dernière mise à jour"/>
+                    <field name="objet"></field>
+               </tree>
+            </field>
+        </record>
+        <record id="open_production_update_cdt_tree" model="ir.actions.act_window">
+            <field name="name">Mise à jour CDT</field>
+            <field name="res_model">production.update.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+        <!--
+    ======================
+   Feuille d'heures cdt
+    =======
+          -->
+        <record id="view_reporting_fh_cdt_form" model="ir.ui.view">
+            <field name="name">reporting.form</field>
+            <field name="model">reporting</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="reporting" version="7.0">
+                     <header>
+                    	<button name="generer_fh_cdt" string="Générer" type="object" class="oe_highlight"/>
+                    	ou
+                    	<button string="Annuler" class="oe_link" special="cancel" />
+                	</header>
+                	<group col="6" colspan="2">   
+						<field name="mois" required="1"/>
+						<field name="annee" required="1"/>
+						<field name="superviseur_id" invisible="1" string="Equipe" widget="selection"/>     
+	                 </group>
+               </form>
+            </field>
+        </record>
+
+        <record id="open_reporting_fh_cdt_form" model="ir.actions.act_window">
+            <field name="name">Génerer FH CDT</field>
+            <field name="res_model">reporting</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+		<record model="ir.actions.act_window.view" id="open_reporting_fh_cdt_form_form">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_reporting_fh_cdt_form"/>
+            <field name="act_window_id" ref="open_reporting_fh_cdt_form"/>
+        </record>
+   <!--
+    ======================
+   Stats cdt
+    =======
+          -->
+        <record id="view_reporting_stats_cdt_form" model="ir.ui.view">
+            <field name="name">reporting.form</field>
+            <field name="model">reporting</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="reporting" version="7.0">
+                     <header>
+                    	<button name="generer_stats_cdt" string="Générer" type="object" class="oe_highlight"/>
+                    	ou
+                    	<button string="Annuler" class="oe_link" special="cancel" />
+                	</header>
+                	<group col="4" colspan="2">   
+						<field name="mois" required="1"/>
+						<field name="annee" required="1"/> 
+						<field name="type_cdt" required="1"/> 	
+						<field name="superviseur_id" attrs="{'invisible':[('type_cdt','!=','EQUIPE')],'required':[('type_cdt','=','EQUIPE')],}" string="Equipe" widget="selection"/>     
+	                </group>
+               </form>
+            </field>
+        </record>
+
+        <record id="open_reporting_stats_cdt_form" model="ir.actions.act_window">
+            <field name="name">Génerer STATS CDT</field>
+            <field name="res_model">reporting</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+		<record model="ir.actions.act_window.view" id="open_reporting_stats_cdt_form_form">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_reporting_stats_cdt_form"/>
+            <field name="act_window_id" ref="open_reporting_stats_cdt_form"/>
+        </record>
+         <!--
+    ======================
+    factures
+    =======
+          -->
+        <record id="view_production_invoice_cdt_tree" model="ir.ui.view">
+            <field name="name">production.invoice.cdt.tree</field>
+            <field name="model">production.invoice.cdt</field>
+            <field name="type">tree</field>
+            <field eval="3" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="factures" >
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="prod"/>
+                    <field name="retour"/>
+                    <field name="amount_total"/>
+               </tree>
+            </field>
+        </record>
+        <record id="view_production_invoice_cdt_form" model="ir.ui.view">
+            <field name="name">production.invoice.cdt.form</field>
+            <field name="model">production.invoice.cdt</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="factures" version="7.0"> 
+                	<sheet><field name="name" invisible="1"/>
+	                	<group colspan="2" col="6"> 
+	                		
+                    		<field name="date"/>
+		                    <field name="prod"/>
+		                    <field name="retour"/>
+	                    </group>
+	                    <group name="Liste des factures">
+		                    <field name="invoice_line_ids" nolabel="1" context="{'default_invoice_id': active_id}" colspan="4">
+								<tree string="Lignes de facture" editable="bottom" >
+									<field name="invoice_id" invisible="1"/>
+									<field name="date" invisible="1"/>
+									<field name="site"/>
+									<field name="cu"/>
+									<field name="dossier_id"/>
+									<field name="cu_h"/>
+									<field name="price"/>
+									<field name="amount"/>
+									<field name="paid" readonly="1"/>
+								</tree>
+							</field>
+						</group>
+						<group class="oe_subtotal_footer oe_right"> 
+							<field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+							<field name="amount_paid_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+							<field name="amount_balance_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+						</group>
+						<div class="oe_clear"/>
+					</sheet>
+               </form>
+            </field>
+        </record>
+        <record id="open_view_production_invoice_cdt_tree" model="ir.actions.act_window">
+            <field name="name">Factures</field>
+            <field name="res_model">production.invoice.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+            <!--
+    ======================
+    Lignes des factures
+    =======
+          -->
+        <record id="view_production_invoice_line_cdt_tree" model="ir.ui.view">
+            <field name="name">production.invoice.line.cdt.tree</field>
+            <field name="model">production.invoice.line.cdt</field>
+            <field name="type">tree</field>
+            <field eval="3" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Lignes des factures" editable="top">
+                    <field name="name"/>
+					<field name="year" invisible="1"/>
+					<field name="month" invisible="1"/>
+					<field name="date"/>
+					<field name="site" readonly="1"/>
+					<field name="cu" readonly="1"/>
+					<field name="dossier_id" readonly="1"/>
+					<field name="cu_h"/>
+					<field name="price"/>
+					<field name="amount"/>
+					<field name="paid" readonly="1"/>
+					<button name="action_paid_amount" icon="gtk-yes" string="Payé" type="object" attrs="{'invisible':[('paid','=',True)]}"/>
+					<button name="action_print" icon="gtk-print" string="Imprimer" type="object" />
+	                    
+               </tree>
+            </field>
+        </record>
+        <record id="open_view_production_invoice_line_cdt_tree" model="ir.actions.act_window">
+            <field name="name">Lignes des factures</field>
+            <field name="res_model">production.invoice.line.cdt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help">.</field>
+        </record>
+         <!-- Planning cdt -->     
+       <record model="ir.ui.view" id="view_planning_cdt_form">
+            <field name="name">planning.cdt.form</field>
+            <field name="model">planning.cdt</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="liste" version="7.0">
+                    	<table style="width:100%%;padding : 5px;">
+								<tr style="border: 2px solid #ddd;font-size:24px;color: black;">
+									<td style="text-align:center" colspan="13"><label string="PLANNING PREMIER SEMESTRE 2019 CONFIRME"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;font-size:16px;text-align:left;"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;color: black;text-align:center;" colspan="2"><label string="janv-2019"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;color: black;text-align:center;" colspan="2"><label string="fevr-2019"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;color: black;text-align:center;" colspan="2"><label string="mars-2019"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;color: black;text-align:center;" colspan="2"><label string="avr-2019"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;color: black;text-align:center;" colspan="2"><label string="mai-2019"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;color: black;text-align:center;" colspan="2"><label string="Juin-2019"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="1"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;background-color: #ffff00;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;background-color: #ffff00;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="2"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;color: black;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;background-color: #bfbfbf;text-align:left"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;background-color: #bfbfbf;text-align:right;"><label string="0"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="3"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="4"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="6"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #ffff00;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="9"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="10"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #ffff00;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="11"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="9"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="12"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="13"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="14"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="15"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="16"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="17"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="18"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="9"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="j"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="19"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="20"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="j"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="21"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="22"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #ffff00;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="23"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="24"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="25"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="26"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="27"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="28"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8,5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="29"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="L"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="6"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="30"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="S"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="M"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="8"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #ffff00;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;background-color: #fcd5b4;text-align:right;"><label string="31"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="J"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7,5"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;background-color: #bfbfbf;"><label string="D"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;background-color: #bfbfbf;"><label string="0"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string="V"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string="7"/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:left;"><label string=""/>  </td>
+									<td style="padding : 5px;width:7%%;border: 2px solid #ddd;text-align:right;"><label string=""/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;border: 2px solid #ddd;font-size:16px;text-align:left"><label string="Total H comptabilisé"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="191"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="191"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="191"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="191"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="191"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="191"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;border: 2px solid #ddd;font-size:16px;text-align:left"><label string="Total H Prod"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="183"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="191"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="191"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="183"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="168,5"/>  </td>
+									<td style="padding : 5px;width:14%%;border: 2px solid #ddd;font-size:16px;text-align:right;" colspan="2"><label string="183"/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;font-size:16px;text-align:left;"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+								</tr>
+								<tr >
+									<td style="padding : 5px;width:16%%;font-size:16px;text-align:left;background-color: #ffff00;"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string="Jours fériés"/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string="Total H comptabilisé"/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string="1146,00"/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+								</tr>																	
+								<tr >
+									<td style="padding : 5px;width:16%%;font-size:16px;text-align:left;background-color: #538ed5;"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string="Jours Off "/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string="Total H Prod"/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string="1099,50"/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+								</tr>								
+								<tr >
+									<td style="padding : 5px;width:16%%;font-size:16px;text-align:left;"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:left;" colspan="2"><label string="Total H Prod par mois"/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string="183,25"/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+									<td style="padding : 5px;width:14%%;font-size:16px;text-align:right;" colspan="2"><label string=""/>  </td>
+								</tr>
+							</table>	
+                </form>
+            </field>			
+            
+        </record>             
+		<record id="action_planning_cdt" model="ir.actions.act_window">
+	            <field name="name">Semestre 1</field>
+	            <field name="res_model">planning.cdt</field>
+	            <field name="view_type">form</field>
+	            <field name="view_mode">form</field>
+	            <field name="context">{}</field>
+	            <field name="domain">[]</field>
+	            <field name="help">.</field>
+    	</record> 
+	</data>
+</openerp>

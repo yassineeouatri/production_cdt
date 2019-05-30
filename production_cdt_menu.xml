@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<menuitem action="hr.open_view_employee_list_my" id="hr.menu_open_view_employee_list_my" sequence="3" parent="hr.menu_hr_main" groups="group_cdt_manager"/>
+    	<menuitem id="formation_cdt_menu"  name="Formation"  parent="hr.menu_hr_root" sequence="1" groups="group_cdt_manager,base.group_hr_user"/>
+ 		<menuitem id="formation_cdt_menu_"  name="Formation" parent="formation_cdt_menu" action="hr_paie.open_view_employee_formation_tree" sequence="2"/>
+ 		<menuitem id="parrainage_cdt_menu"  name="Parrainage"  parent="hr.menu_hr_root" sequence="2" groups="group_cdt_manager"/>
+ 		<menuitem id="parrainage_cdt_menu_"  name="Parrainage" parent="parrainage_cdt_menu" action="open_view_employee_parrainage_cdt_tree" sequence="2"/>
+ 		
+		<menuitem id="production_cdt_menu"  name="Production CDT" sequence="95" groups="group_cdt_facture,group_cdt_manager,group_cdt_sup,group_cdt_ta"/>
+		<menuitem id="board_cdt_menu"  name="Tableaux de bord" parent="production_cdt_menu" sequence="0" groups="group_cdt_manager,group_cdt_sup,group_cdt_ta"/>
+		<menuitem id="board_manager_cdt_menu"  name="Mon tableau de bord" action="open_board_suivi_production_sup_cdt" parent="board_cdt_menu" sequence="1" groups="group_cdt_manager,group_cdt_sup"/>
+		<menuitem id="board_employee_cdt_menu"  name="Mon tableau de bord" action="open_board_suivi_production_ta_cdt" parent="board_cdt_menu" sequence="2" groups="group_cdt_ta"/>
+		<menuitem id="effectif_cdt_menu"  name="Effectif"  parent="production_cdt_menu" sequence="1" groups="group_cdt_manager"/>
+ 		<menuitem id="effectif_cdt_menu_"   parent="effectif_cdt_menu" action="open_view_employee_cdt" sequence="1"/>
+ 		<menuitem id="planning_cdt_cdt_menu"  name="Planning semestriel"  parent="production_cdt_menu" sequence="2" groups="group_cdt_manager,group_cdt_sup,group_cdt_ta"/>
+ 		<menuitem id="planning_cdt_cdt_menu_"   parent="planning_cdt_cdt_menu" action="action_planning_cdt" sequence="1"/>
+ 		<menuitem id="dimensionnement_cdt_menu"  name="Dimensionnement"  parent="production_cdt_menu" sequence="2" groups="group_cdt_manager"/>
+ 		<menuitem id="dimensionnement_cdt_menu_"   parent="dimensionnement_cdt_menu" action="open_hr_employee_dimensionnement_cdt" sequence="2"/>
+ 		<menuitem id="planning_cdt_menu"  name="Planning"  parent="production_cdt_menu" sequence="3" groups="group_cdt_manager,group_cdt_sup"/>
+ 		<menuitem id="planning_cdt_menu_"   parent="planning_cdt_menu" action="open_hr_operation_planning_cdt_jour" sequence="1"/>
+ 		<menuitem id="presence_cdt_menu"  name="Feuille de présence"  parent="production_cdt_menu" sequence="4" groups="group_cdt_manager,group_cdt_sup"/>
+ 		<menuitem id="presence_cdt_menu_"   parent="presence_cdt_menu" action="open_hr_employee_presence_cdt_jour" sequence="1"/>
+ 		<menuitem id="prime_cdt_menu"  name="Primes"  parent="production_cdt_menu" sequence="5" groups="group_cdt_manager,group_cdt_sup"/>
+ 		<menuitem id="prime_quotidienne_cdt_menu"   parent="prime_cdt_menu" action="open_view_production_prime_quot_cdt_tree" sequence="1" />
+ 		<menuitem id="production_base_work_cdt_menu"  name="Bases Travaillés"  parent="production_cdt_menu" sequence="6" groups="group_cdt_manager,group_cdt_sup"/>
+ 		<menuitem id="production_base_work_cdt_menu_"  name="Bases Travaillés"  parent="production_base_work_cdt_menu" sequence="1" action="action_production_base_work_cdt"/>
+ 		<menuitem id="saisi_heure_cdt_menu"  name="Saisie des heures"  parent="production_cdt_menu" sequence="6" groups="group_cdt_manager,group_cdt_sup"/>
+ 		<menuitem id="saisi_heure_cdt_menu_"  name="Equipe" parent="saisi_heure_cdt_menu" action="open_suivi_production_ta_cdt_jour" sequence="1"/>
+ 		<menuitem id="suivi_production_cdt_menu"  name="Suivi de production"  parent="production_cdt_menu" sequence="7" groups="group_cdt_manager"/>
+ 		<menuitem id="suivi_production_base_cdt_menu"  name="Par base" parent="suivi_production_cdt_menu" action="open_suivi_production_base_cdt" sequence="1"/>
+ 		<menuitem id="suivi_production_manager_cdt_menu"  name="Par Sup" parent="suivi_production_cdt_menu" action="open_suivi_production_superviseur_cdt" sequence="2"/>
+ 		<menuitem id="suivi_production_employee_cdt_menu"  name="Par Agent" parent="suivi_production_cdt_menu" action="open_suivi_production_employee_cdt" sequence="3"/>
+		<menuitem id="retour_production_cdt_menu"  name="Taux de retour"  parent="production_cdt_menu" sequence="8" groups="group_cdt_manager"/>
+		<menuitem id="retour_production_cdt_menu_"  name="Import"  parent="retour_production_cdt_menu" sequence="1" groups="group_cdt_manager" action="open_production_retour_cdt"/>
+ 		<menuitem id="invoice_cdt_menu"  name="Facturation"  parent="production_cdt_menu" sequence="80" groups="group_cdt_facture,group_cdt_manager"/>
+ 		<menuitem id="invoice_cdt_menu_"  name="Factures"  parent="invoice_cdt_menu" action="open_view_production_invoice_cdt_tree" sequence="1" groups="group_cdt_facture,group_cdt_manager"/>
+ 		<menuitem id="invoice_line_cdt_menu_"  name="Lignes des factures"  parent="invoice_cdt_menu" action="open_view_production_invoice_line_cdt_tree" sequence="2" groups="group_cdt_facture"/>
+ 		<menuitem id="reporting_cdt_menu"  name="Reporting"  parent="production_cdt_menu" sequence="90" groups="group_cdt_manager"/>
+ 		<menuitem id="reporting_fh_cdt_menu"  name="Feuille d'heure"  parent="reporting_cdt_menu" action="open_reporting_fh_cdt_form" sequence="1"/>
+ 		<menuitem id="reporting_stats_cdt_menu"  name="Stats"  parent="reporting_cdt_menu" action="open_reporting_stats_cdt_form" sequence="2"/>
+ 		<menuitem id="reporting_etat_salaire_cdt_menu"  name="Etat des salaires"  parent="reporting_cdt_menu" action="hr_paie.open_reporting_etat_salaire_cdt_form" sequence="2"/>
+ 		<menuitem id="configuration_cdt_menu"  name="Configuration"  parent="production_cdt_menu" sequence="99" groups="group_cdt_manager"/>
+ 		<menuitem id="configuration_dossier_cdt_menu"  name="Dossier"  parent="configuration_cdt_menu" action="open_production_base_cdt" sequence="1"/>
+ 		<menuitem id="configuration_type_dossier_cdt_menu"  name="Type des dossier"  parent="configuration_cdt_menu" action="open_production_base_type_cdt" sequence="2"/>
+ 		<menuitem id="configuration_login_cdt_menu"  name="Logins"  parent="configuration_cdt_menu" action="open_production_login_cdt" sequence="3"/>
+ 		<menuitem id="configuration_user_cdt_menu" name="Utilisateurs" action="action_res_users_cdt" parent="configuration_cdt_menu" sequence="4"/>
+ 		<menuitem id="configuration_update_cdt_menu"  name="Mise à jour"  parent="configuration_cdt_menu" action="open_production_update_cdt_tree" sequence="5"/>
+ 		<menuitem id="configuration_server_cdt_menu"  name="Serveurs"  parent="configuration_cdt_menu" action="open_view_production_server_cdt_tree" sequence="6"/>
+ 		
+ 		<!-- 
+ 		<menuitem id="production_cdt_quali_menu"  name="Production" sequence="96" groups="group_cdt_manager"/>
+		<menuitem id="saisi_heure_cdt_quali_menu"     name="Saisi des heures"  groups="group_cdt_manager" parent="production_cdt_quali_menu"  sequence="1"/>
+		<menuitem id="saisi_heure_cdt_quali_ta_menu"    name="Par TA"   parent="saisi_heure_cdt_quali_menu"  action="production.open_view_production_heure_tree"/>
+		 -->
+	</data>
+</openerp>

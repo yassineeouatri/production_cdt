@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<openerp>
+<data noupdate="0">
+    <record id="invoice_cdt_casa_report_id" model="ir.actions.report.xml">
+        <field name="name">FACTURE CDT CASA</field>
+        <field name="type">ir.actions.report.xml</field>
+        <field name="model">production.invoice.line.cdt</field>
+        <field name="report_name">invoice_cdt_casa</field>
+        <field name="report_type">aeroo</field>
+        <field name="in_format">oo-ods</field>
+        <field name="parser_loc">production_cdt/parser.py</field>
+        <field name="report_rml">production_cdt/report/invoice_casa.ods</field>
+        <field name="parser_state">loc</field>
+        <field name="tml_source">file</field>
+    </record>
+     <record id="invoice_cdt_abidjan_report_id" model="ir.actions.report.xml">
+        <field name="name">FACTURE CDT ABIDJAN</field>
+        <field name="type">ir.actions.report.xml</field>
+        <field name="model">production.invoice.line.cdt</field>
+        <field name="report_name">invoice_cdt_abidjan</field>
+        <field name="report_type">aeroo</field>
+        <field name="in_format">oo-ods</field>
+        <field name="parser_loc">production_cdt/parser.py</field>
+        <field name="report_rml">production_cdt/report/invoice_abidjan.ods</field>
+        <field name="parser_state">loc</field>
+        <field name="tml_source">file</field>
+    </record>
+</data>
+</openerp>
+

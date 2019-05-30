@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+      
+     <record model="hr.client" id="client_production_cdt">
+         <field name="name">CDT</field>
+     </record>
+  	 <record model="production.client" id="client_cdt">
+         <field name="name">CDT</field>
+     </record>
+     <record model="production.compagne" id="compagne_cdt">
+         <field name="name">Cumul CDT</field>
+         <field name="client_id" eval="client_cdt"/>
+     </record>
+	 <record model="hr.operation" id="operation_production_cdt">
+         <field name="name">CDT</field>
+         <field name="client_id" ref="client_production_cdt"/>
+     </record>
+        <record model="ir.module.category" id="module_category_production_cdt">
+            <field name="name">Production CDT</field>
+            <field name="description">Production CDT</field>
+            <field name="sequence">4</field>
+        </record>
+
+    </data>
+</openerp>
