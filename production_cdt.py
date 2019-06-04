@@ -1659,7 +1659,7 @@ suivi_board_sup_ca_cdt()
 class reporting(osv.osv):
     _name = 'reporting'
     _inherit = 'reporting'
-    _columns = {
+    _columns = {'type_tarif' : fields.selection([('invitation','Invitation'),('heure','Heure'),('retour','Retour'),('invitation_heure','Invitation+Heure'),('total', 'Total')],'Type Tarif'),
                 'type_cdt' : fields.selection([('TOTAL', 'TOTAL'), ('EQUIPE', 'EQUIPE')],'Type'),
                 'superviseur_id' : fields.many2one('hr.employee','Equipe',domain=[('category_id.name','in',('SUP','Chef de plateau')),('state','in',('open','en_conge')),('operation_id.name','=','CDT')]),
         
@@ -1667,16 +1667,18 @@ class reporting(osv.osv):
     def generer_stats_cdt(self, cr, uid,ids=True, context=None):
         reload(sys)
         sys.setdefaultencoding("UTF8")       
-        for obj in self.read(cr, uid, ids, ['annee','mois','type_cdt' , 'superviseur_id'], context=context):
+        for obj in self.read(cr, uid, ids, ['annee','mois','type_cdt', 'type_tarif' , 'superviseur_id'], context=context):
             mois=obj['mois']
             annee=obj['annee']
             type_cdt = obj['type_cdt']
+            type_tarif = obj['type_tarif']
             superviseur_id = None
+
             if obj['superviseur_id']:
                 superviseur_id = obj['superviseur_id'][0]
-        fichier=self.generer_stats_cdt_(cr, uid,type_cdt,superviseur_id,mois,annee, ids, context)
+        fichier=self.generer_stats_cdt_(cr, uid,type_cdt,type_tarif,superviseur_id,mois,annee, ids, context)
         return self.get_return(cr, uid,fichier, ids, context)
-    def generer_stats_cdt_(self, cr, uid,type_cdt,superviseur_id,mois,annee,ids=True, context=None):
+    def generer_stats_cdt_(self, cr, uid,type_cdt,type_tarif,superviseur_id,mois,annee,ids=True, context=None):
         cr.execute("update suivi_production_ta_cdt set tv=replace(tv,'''','') where tv like '%''%'")
         cr.commit()
         reload(sys)
@@ -1684,10 +1686,15 @@ class reporting(osv.osv):
         le_mois=''
         le_mois=self.get_le_mois(mois)
         date_deb=str(annee)+'-'+str(le_mois)+'-01'
-        requete = ''
+
+        requete = " and type_tarif= '"+str(type_tarif)+ "'  "
+        if type_tarif == 'total':
+            requete = ''
+        if type_tarif == 'invitation_heure':
+            requete = " and type_tarif in ('invitation', 'heure')  "
         filename ='TOTAL'
         if type_cdt == 'EQUIPE':
-            requete= ' and a.superviseur_id = ' +str(superviseur_id)+' '
+            requete+= ' and a.superviseur_id = ' +str(superviseur_id)+' '
             cr.execute('select complete_name from hr_employee where id={0}'.format(superviseur_id))
             for res in cr.fetchall():
                 complete_name=res[0]
@@ -1722,7 +1729,7 @@ class reporting(osv.osv):
                 date=res_date[1] 
                 feuille = workbook.add_worksheet(res_date[2])
                 requete_date = " where a.date='"+date+"' "+requete
-                cr.execute("select count(*) from suivi_production_ta_cdt a {0}".format(requete_date))
+                cr.execute("select count(*) from suivi_production_ta_cdt a inner join production_base_cdt b on a.base_id=b.id {0}".format(requete_date))
                 for res_test in cr.fetchall():
                     
                     if res_test[0]>0:
@@ -1780,6 +1787,7 @@ class reporting(osv.osv):
                         x=0
                         cr.execute("""select row_number() OVER (),name_related,prenom from 
                                 (select distinct name_related,prenom from suivi_production_ta_cdt a
+                                inner join production_base_cdt c on a.base_id=c.id
                                 left join hr_employee b on a.employee_id=b.id 
                                 {0} and employee_id is not null 
                                 order by name_related,prenom) as t""".format(requete_date))
@@ -1796,6 +1804,7 @@ class reporting(osv.osv):
                         x=3
                         y=y_deb
                         cr.execute("""select distinct employee_id,name_related,prenom from suivi_production_ta_cdt a 
+                                        inner join production_base_cdt c on a.base_id=c.id
                                         left join hr_employee b on a.employee_id=b.id
                                         {0} and employee_id is not null order by name_related,prenom""".format(requete_date))
                         for res in cr.fetchall():
@@ -1812,6 +1821,7 @@ class reporting(osv.osv):
                                 cr.execute("""select sum(case when h_prod_jour is null then 0 else h_prod_jour end) as h_prod,
                                             sum(cu) as invitation
                                             from suivi_production_ta_cdt a
+                                            inner join production_base_cdt c on a.base_id=c.id
                                             {0} and employee_id = {1} and base_id={2}""".format(requete_date, employee_id, base_id))
                                 for res1 in cr.fetchall():
                                     h_prod=res1[0]
@@ -1854,7 +1864,7 @@ class reporting(osv.osv):
                             y=y+1
                             x=3
                         nb=0
-                        cr.execute("""select a.base_id,(select count(distinct employee_id) from suivi_production_ta_cdt a 
+                        cr.execute("""select a.base_id,(select count(distinct employee_id) from suivi_production_ta_cdt a  inner join production_base_cdt c on a.base_id=c.id
                                         {0} and employee_id is not null),b.type_tarif,b.name
                                         from suivi_production_ta_cdt a inner join production_base_cdt b on a.base_id=b.id
                                         {0} group by a.base_id,b.type_tarif,b.name order by b.name""".format(requete_date))
@@ -1895,7 +1905,7 @@ class reporting(osv.osv):
             feuille = workbook.add_worksheet('S'+str(semaine)) 
             requete_week = " where extract(year from a.date)="+str(annee)+" and extract(week from a.date)="+str(semaine)+" \
                         and extract(month from a.date)="+str(le_mois)+" "+requete
-            cr.execute("select count(*) from suivi_production_ta_cdt a {0}".format(requete_week))
+            cr.execute("select count(*) from suivi_production_ta_cdt a inner join production_base_cdt b on a.base_id=b.id {0}".format(requete_week))
             for res_test in cr.fetchall():
                 if res_test[0]>0:
                     feuille.set_row(0, 40)
@@ -1950,6 +1960,7 @@ class reporting(osv.osv):
                     x=0
                     cr.execute("""select row_number() OVER (),name_related,prenom from 
                                     (select distinct name_related,prenom from suivi_production_ta_cdt a
+                                    inner join production_base_cdt c on a.base_id=c.id
                                     left join hr_employee b on a.employee_id=b.id 
                                     {0} and employee_id is not null order by name_related,prenom) as t""".format(requete_week))
                     for res in cr.fetchall():
@@ -1964,7 +1975,8 @@ class reporting(osv.osv):
                     x=3
                     y=y_deb
                     cr.execute("""select distinct employee_id,name_related,prenom 
-                                    from suivi_production_ta_cdt a left join hr_employee b on a.employee_id=b.id\
+                                    from suivi_production_ta_cdt a left join hr_employee b on a.employee_id=b.id
+                                    inner join production_base_cdt c on a.base_id=c.id
                                     {0} and employee_id is not null   order by name_related,prenom""".format(requete_week))
                     for res in cr.fetchall():
                         employee_id=res[0]
@@ -1980,6 +1992,7 @@ class reporting(osv.osv):
                             h_prod=cu=''
                             cr.execute("""select sum(case when h_prod_jour is null then 0 else h_prod_jour end) as h_prod,sum(cu) as invitation
                                         from suivi_production_ta_cdt a
+                                        inner join production_base_cdt c on a.base_id=c.id
                                         {0} and employee_id={1} and base_id={2}""".format(requete_week, employee_id, base_id))
                             for res1 in cr.fetchall():
                                 h_prod=res1[0]
@@ -2021,7 +2034,7 @@ class reporting(osv.osv):
                     
                         y=y+1
                         x=3
-                    cr.execute("""select a.base_id,(select count(distinct employee_id) from suivi_production_ta_cdt a {0} and employee_id is not null),b.type_tarif,b.name
+                    cr.execute("""select a.base_id,(select count(distinct employee_id) from suivi_production_ta_cdt a inner join production_base_cdt c on a.base_id=c.id {0} and employee_id is not null),b.type_tarif,b.name
                                     from suivi_production_ta_cdt a
                                     inner join production_base_cdt b on a.base_id=b.id
                                     {0} group by a.base_id,b.type_tarif,b.name order by b.name""".format(requete_week))
@@ -2063,7 +2076,7 @@ class reporting(osv.osv):
                         
         feuille = workbook.add_worksheet(mois) 
         requete_month =" where extract(year from date)="+str(annee)+" and extract(month from date)="+str(le_mois)+" "+requete
-        cr.execute("select count(*) from suivi_production_ta_cdt a {0}".format(requete_month))
+        cr.execute("select count(*) from suivi_production_ta_cdt a inner join production_base_cdt b on a.base_id=b.id {0}".format(requete_month))
         for res_test in cr.fetchall():
             
             if res_test[0]>0:
@@ -2120,6 +2133,7 @@ class reporting(osv.osv):
                 cr.execute("""select row_number() OVER (),name_related,prenom from 
                                 (select distinct name_related,prenom from suivi_production_ta_cdt a
                                 left join hr_employee b on a.employee_id=b.id 
+                                inner join production_base_cdt c on a.base_id=c.id
                                 {0} and employee_id is not null order by name_related,prenom) as t""".format(requete_month))
                 for res in cr.fetchall():
                     feuille.write(self.get_nom_colonne(x)+str(y),res[0],style) 
@@ -2134,6 +2148,7 @@ class reporting(osv.osv):
                 y=y_deb
                 cr.execute("""select distinct employee_id,name_related,prenom 
                             from suivi_production_ta_cdt a left join hr_employee b on a.employee_id=b.id
+                            inner join production_base_cdt c on a.base_id=c.id
                             {0} and employee_id is not null   order by name_related,prenom""".format(requete_month))
                 for res in cr.fetchall():
                     employee_id=res[0]
@@ -2148,6 +2163,7 @@ class reporting(osv.osv):
                         h_prod=cu=''
                         cr.execute("""select sum(case when h_prod_jour is null then 0 else h_prod_jour end) as h_prod,sum(cu) as invitation
                                         from suivi_production_ta_cdt a
+                                        inner join production_base_cdt c on a.base_id=c.id
                                         {0} and employee_id={1} and base_id={2}""".format(requete_month, employee_id, base_id))
                         for res1 in cr.fetchall():
                             h_prod=res1[0]
@@ -2203,7 +2219,7 @@ class reporting(osv.osv):
                 
                     y=y+1
                     x=3
-                cr.execute("""select a.base_id,(select count(distinct employee_id) from suivi_production_ta_cdt a {0} and employee_id is not null),b.type_tarif,b.name
+                cr.execute("""select a.base_id,(select count(distinct employee_id) from suivi_production_ta_cdt a inner join production_base_cdt c on a.base_id=c.id {0} and employee_id is not null),b.type_tarif,b.name
                                 from suivi_production_ta_cdt a
                                 inner join production_base_cdt b on a.base_id=b.id
                                 {0} group by a.base_id,b.type_tarif,b.name order by b.name""".format(requete_month))

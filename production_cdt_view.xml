@@ -931,7 +931,8 @@
                 	<group col="4" colspan="2">   
 						<field name="mois" required="1"/>
 						<field name="annee" required="1"/> 
-						<field name="type_cdt" required="1"/> 	
+						<field name="type_cdt" required="1"/>
+                        <field name="type_tarif" required="1"/>
 						<field name="superviseur_id" attrs="{'invisible':[('type_cdt','!=','EQUIPE')],'required':[('type_cdt','=','EQUIPE')],}" string="Equipe" widget="selection"/>     
 	                </group>
                </form>
