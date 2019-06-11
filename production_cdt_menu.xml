@@ -25,13 +25,13 @@
  		<menuitem id="prime_quotidienne_cdt_menu"   parent="prime_cdt_menu" action="open_view_production_prime_quot_cdt_tree" sequence="1" />
  		<menuitem id="production_base_work_cdt_menu"  name="Bases Travaillés"  parent="production_cdt_menu" sequence="6" groups="group_cdt_manager,group_cdt_sup"/>
  		<menuitem id="production_base_work_cdt_menu_"  name="Bases Travaillés"  parent="production_base_work_cdt_menu" sequence="1" action="action_production_base_work_cdt"/>
- 		<menuitem id="saisi_heure_cdt_menu"  name="Saisie des heures"  parent="production_cdt_menu" sequence="6" groups="group_cdt_manager,group_cdt_sup"/>
+ 		<menuitem id="saisi_heure_cdt_menu"  name="Saisie des heures"  parent="production_cdt_menu" sequence="7" groups="group_cdt_manager,group_cdt_sup"/>
  		<menuitem id="saisi_heure_cdt_menu_"  name="Equipe" parent="saisi_heure_cdt_menu" action="open_suivi_production_ta_cdt_jour" sequence="1"/>
- 		<menuitem id="suivi_production_cdt_menu"  name="Suivi de production"  parent="production_cdt_menu" sequence="7" groups="group_cdt_manager"/>
+ 		<menuitem id="suivi_production_cdt_menu"  name="Suivi de production"  parent="production_cdt_menu" sequence="8" groups="group_cdt_manager"/>
  		<menuitem id="suivi_production_base_cdt_menu"  name="Par base" parent="suivi_production_cdt_menu" action="open_suivi_production_base_cdt" sequence="1"/>
  		<menuitem id="suivi_production_manager_cdt_menu"  name="Par Sup" parent="suivi_production_cdt_menu" action="open_suivi_production_superviseur_cdt" sequence="2"/>
  		<menuitem id="suivi_production_employee_cdt_menu"  name="Par Agent" parent="suivi_production_cdt_menu" action="open_suivi_production_employee_cdt" sequence="3"/>
-		<menuitem id="retour_production_cdt_menu"  name="Taux de retour"  parent="production_cdt_menu" sequence="8" groups="group_cdt_manager"/>
+		<menuitem id="retour_production_cdt_menu"  name="Taux de retour"  parent="production_cdt_menu" sequence="9" groups="group_cdt_manager"/>
 		<menuitem id="retour_production_cdt_menu_"  name="Import"  parent="retour_production_cdt_menu" sequence="1" groups="group_cdt_manager" action="open_production_retour_cdt"/>
  		<menuitem id="invoice_cdt_menu"  name="Facturation"  parent="production_cdt_menu" sequence="80" groups="group_cdt_facture,group_cdt_manager"/>
  		<menuitem id="invoice_cdt_menu_"  name="Factures"  parent="invoice_cdt_menu" action="open_view_production_invoice_cdt_tree" sequence="1" groups="group_cdt_facture,group_cdt_manager"/>

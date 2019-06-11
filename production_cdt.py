@@ -1182,7 +1182,7 @@ class production_retour_cdt(osv.osv):
 production_retour_cdt()
 class production_invoice_cdt(osv.osv):
     _name = 'production.invoice.cdt'
-    _order ='date asc'
+    _order ='date desc'
     def _get_name(self,cr,uid,ids, name, args, context=True):
         res = {}
         for obj in self.browse(cr, uid, ids, context=context):
